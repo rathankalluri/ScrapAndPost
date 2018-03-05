@@ -54,7 +54,7 @@ def remove_without_content():
 			tag.replaceWith(tag.text.strip())
 		else:
 			tag.text.strip()
-	newfile = open('cleaned.html','w')
+	newfile = open('cleaned.html','w') #creating a temp file as per my requirement, you can modify as you wish or can use as is
 	for d in to_clean:
 		newfile.write("%s\n" % d)
 
@@ -76,7 +76,7 @@ for divs in soup.findAll('div',attrs={"id":"ContentColumn"}):
 	
 	clean_divs = _remove_attrs(divs)
 	
-	thefile = open('formatted2.html', 'w')
+	thefile = open('formatted2.html', 'w') #creating a temp file as per my requirement, you can modify as you wish or can use as is
 	for d in clean_divs:
 		thefile.write("%s\n" % d)
 
