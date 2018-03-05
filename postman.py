@@ -6,9 +6,9 @@ import time
 
 start_time = time.time()
 
-user = 'charles'
-pythonapp = '31CM7WvDRBRscelaiy'
-url = 'http://rathankalluri.com/charles/wp-json/wp/v2'
+user = 'username' #wordpress admin username
+pythonapp = 'password' #wordpress password
+url = 'http://your-wordpress-site.com/wp-json/wp/v2'
 
 token = base64.standard_b64encode(user + ':' + pythonapp)
 headers = {'Authorization': 'Basic ' + token}
@@ -54,41 +54,6 @@ post = {'title': wp_title,
         }
 		
 r = requests.post(url + '/posts', headers=headers, json=post)
-print(json.loads(r.content))
 
 print "SECONDS LASPED"
-print time.time() - start_time
-
-"""
-imgsrc = json.loads(up.content)['source_url']
-postid = json.loads(r.content)['id']
-updatedpost = {'content': 'Changed things.<img src=' 
-        + imgsrc
-        + '>'}
-		
-update = requests.post(url + '/posts/' + postid, headers=headers, json=updatedpost)
-print('The updated post is published on ' + json.loads(updatedpost.content)['link'])
-"""
-
-
-
-
-"""content = open('formatted2.html', 'rb')
-#postname = basename('formatted.html')
-file, ext = os.path.splitext('formatted.html')
-upload_file = urllib.urlopen('http://www.daily-bible-verse.net/images/1Corinthians13-3.jpg').read()
-
-i = requests.post("http://rathankalluri.com/charles/wp-json/wp/v2/media",auth=('charles', '31CM7WvDRBRscelaiy'),
-data={files=upload_file})
-
-print(r.status_code, r.reason, r)
-
-
-r = requests.post("http://rathankalluri.com/charles/wp-json/wp/v2/posts", data={
-'title':file,
-'content': content.read(),
-'status':'draft',
-'featured_media': featured_media
-}, auth=('charles', '31CM7WvDRBRscelaiy'))
-
-print(r.status_code, r.reason)"""
+print time.time() - start_time #
