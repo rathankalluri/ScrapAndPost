@@ -2,7 +2,7 @@ from BeautifulSoup import BeautifulSoup
 import json
 import requests
 
-html = open('1Corin13-3.html', 'rb')
+html = open('example.html', 'rb')
 global soup
 soup = BeautifulSoup(html)
 
@@ -14,7 +14,6 @@ def _remove_attrs(divs):
     return divs
 
 def get_img_data():
-	#soups = BeautifulSoup(new_html)
 	imgs = soup.findAll('img')
 	for image in imgs:
 		#return image['src'],image['alt']
@@ -61,7 +60,6 @@ def remove_without_content():
 
 
 #CLEAN CONTENT
-
 for divs in soup.findAll('div',attrs={"id":"ContentColumn"}):
 	scripts = divs.findAll('script')
 	#Remove Scripts
