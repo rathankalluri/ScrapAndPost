@@ -1,8 +1,15 @@
 import requests
 import json
 import base64
-import scraper as sc
 import time
+import scraper as sc
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(message)s',
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filename='postman.log',
+                    filemode='a')
 
 start_time = time.time()
 
@@ -13,6 +20,7 @@ url = 'http://your-wordpress-site.com/wp-json/wp/v2'
 token = base64.standard_b64encode(user + ':' + pythonapp)
 headers = {'Authorization': 'Basic ' + token}
 
+
 #PRINT TO TEST
 
 #print headers
@@ -21,16 +29,40 @@ headers = {'Authorization': 'Basic ' + token}
 #keywords,content = sc.seo_data() #SEO Details - get more
 #print keywords
 #print content
-#wp_title, slug = sc.title_slug_gen()
-#print slug, wp_title
+#wp_title, slug, category = sc.title_slug_gen()
+#print slug, wp_title, category
 #exit() #REMOVE THIS
 
 #PRINT TO TEST END
 
 keywords,content = sc.seo_data()
-wp_title, slug = sc.title_slug_gen()
+logging.info('Got Keywords and SEO Content')
+
+wp_title, slug, category_name = sc.title_slug_gen()
+logging.info('Got Title: %s , Slug: %s , Category: %s', wp_title, slug, category_name)
+
 content = open('cleaned.html', 'rb')
+logging.info('Content scrapped')
+
 img_url, alt = sc.get_img_data()
+logging.info('Image created')
+
+#Create a category or Check if it exists
+
+cat_json = requests.get(url + '/categories', headers=headers)
+contents = cat_json.json()
+for i in contents:
+	if i['name'] == category_name:
+		 category_id = i['id']
+		 logging.info('Category ID exists with ID : %d', category_id)
+		 break
+	else:
+		cat = {'name': category_name}
+		c = requests.post(url + '/categories', headers=headers, json=cat)
+		cat = c.json()
+		category_id = cat['id']
+		logging.info('Category created with ID : %d', category_id)
+		break
 
 #POST media to wp and get ID
 
@@ -40,6 +72,7 @@ featured_media = json.loads(image.content)['id']
 
 time.sleep(5)
 
+logging.info('Media Posted')
 #exit() #REMOVE THIS
 
 #Create post with values
@@ -47,6 +80,7 @@ post = {'title': wp_title,
         'slug': slug,
         'status': 'publish',
         'content': content.read(),
+		'categories': category_id,
         'author': '1',
         'excerpt': wp_title,
         'format': 'standard',
@@ -55,5 +89,5 @@ post = {'title': wp_title,
 		
 r = requests.post(url + '/posts', headers=headers, json=post)
 
-print "SECONDS LASPED"
-print time.time() - start_time #
+if r.content:
+	logging.info('Post Created and lasped for : %s', time.time() - start_time)
