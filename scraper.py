@@ -30,10 +30,11 @@ def create_img(url):
 
 def title_slug_gen():
 	title = soup.find('title').text
+	category = re.findall('\|(.*?)\|', title)
 	wp_title = title.rsplit('| ',1)[1]
 	link = soup.find(attrs={"rel":"canonical"})
 	slug = link['href'][:-5].rsplit('/',1)[1]
-	return wp_title, slug
+	return wp_title, slug, category[0].strip() 
 
 def seo_data():
 	keywords = soup.find(attrs={"name":"keywords"})
