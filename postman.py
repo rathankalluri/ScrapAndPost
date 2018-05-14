@@ -69,7 +69,7 @@ for i in contents:
 media = {'file': open(img_url,'rb'),'caption': alt}
 image = requests.post(url + '/media', headers=headers, files=media)
 featured_media = json.loads(image.content)['id']
-image_url = json.loads(image.content)['raw']
+image_url = json.loads(image.content)['source_url']
 
 time.sleep(5)
 
@@ -98,7 +98,7 @@ logging.info('Post Created with ID : %d', post_id)
 tags = {'post_id':post_id,
 		'seo_title':wp_title,
 		'seo_desc':description,
-		'meta_title':'%%sitename%% | '+category_name+' | %%title',
+		'meta_title':'%%sitename%% | '+category_name+' | %%title%%',
 		'img_url':image_url,
 		'keywords':keywords}
 
