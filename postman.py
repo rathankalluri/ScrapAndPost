@@ -35,7 +35,7 @@ headers = {'Authorization': 'Basic ' + token}
 
 #PRINT TO TEST END
 
-keywords,content = sc.seo_data()
+keywords,description = sc.seo_data()
 logging.info('Got Keywords and SEO Content')
 
 wp_title, slug, category_name = sc.title_slug_gen()
@@ -69,6 +69,7 @@ for i in contents:
 media = {'file': open(img_url,'rb'),'caption': alt}
 image = requests.post(url + '/media', headers=headers, files=media)
 featured_media = json.loads(image.content)['id']
+image_url = json.loads(image.content)['raw']
 
 time.sleep(5)
 
@@ -88,6 +89,21 @@ post = {'title': wp_title,
         }
 		
 r = requests.post(url + '/posts', headers=headers, json=post)
+r = r.json()
+post_id = r['id']
+logging.info('Post Created with ID : %d', post_id)
 
-if r.content:
-	logging.info('Post Created and lasped for : %s', time.time() - start_time)
+#SEO Tag updation
+
+tags = {'post_id':post_id,
+		'seo_title':wp_title,
+		'seo_desc':description,
+		'meta_title':'%%sitename%% | '+category_name+' | %%title',
+		'img_url':image_url,
+		'keywords':keywords}
+
+t = requests.post(url + '/yoast', headers=headers, json=tags)
+seo = t.json()
+logging.info(seo)
+
+logging.info('Post Created and lasped for : %s', time.time() - start_time)	
