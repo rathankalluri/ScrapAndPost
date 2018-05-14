@@ -94,7 +94,7 @@ post_id = r['id']
 logging.info('Post Created with ID : %d', post_id)
 
 #SEO Tag updation
-
+# can use your own SEO related stuff.. have written a wp-json api code at wordpress to receive this code
 tags = {'post_id':post_id,
 		'seo_title':wp_title,
 		'seo_desc':description,
