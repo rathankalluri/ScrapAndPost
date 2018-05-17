@@ -55,11 +55,22 @@ def remove_without_content():
 			tag.replaceWith(tag.text.strip())
 		else:
 			tag.text.strip()
-	newfile = open('cleaned.html','w') #creating a temp file as per my requirement, you can modify as you wish or can use as is
+	#creating a temp file as per my requirement, you can modify as you wish or can use as is
+	#Need to make this code chunk better --->
+	newfile = open('cleaned.html','w') #
 	for d in to_clean:
 		newfile.write("%s\n" % d)
+	
+	newfile = open('cleaned.html','rb')
+	html = newfile.read()
+	html  = " ".join(line.strip() for line in html.split("\n"))
 
-
+	file = open('cleaned.html','w')
+	for d in html:
+		file.write("%s" % d)
+	file.close()
+	#<--- Need to make this code chunk better 
+	
 #CLEAN CONTENT
 for divs in soup.findAll('div',attrs={"id":"ContentColumn"}):
 	scripts = divs.findAll('script')
