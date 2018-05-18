@@ -2,11 +2,18 @@ from BeautifulSoup import BeautifulSoup
 import json
 import requests
 
-html = open('example.html', 'rb')
-global soup
-soup = BeautifulSoup(html)
-
 #METHODS/FUNCTIONS
+def get_file(fname):
+	global filename
+	filename = fname
+	html = open(filename, 'rb')
+	
+	global soup
+	soup = BeautifulSoup(html)
+	initiator(soup)		
+	remove_without_content()
+	return filename
+
 def _remove_attrs(divs):
     for tag in divs.findAll(True):
 		if tag.name not in ['img', 'a']:
@@ -72,28 +79,24 @@ def remove_without_content():
 	#<--- Need to make this code chunk better 
 	
 #CLEAN CONTENT
-for divs in soup.findAll('div',attrs={"id":"ContentColumn"}):
-	scripts = divs.findAll('script')
-	#Remove Scripts
-	for sc in scripts:
-		sc.extract()
-	html = divs.findAll('html')
-	#Remove Ads
-	for data in html:
-		data.extract()
-	style = divs.findAll('style')
-	#Remove Style tags
-	for st in style:
-		st.extract()
-	
-	clean_divs = _remove_attrs(divs)
-	
-	thefile = open('formatted2.html', 'w') #creating a temp file as per my requirement, you can modify as you wish or can use as is
-	for d in clean_divs:
-		thefile.write("%s\n" % d)
+def initiator(soup):
+	for divs in soup.findAll('div',attrs={"id":"ContentColumn"}):
+		scripts = divs.findAll('script')
+		#Remove Scripts
+		for sc in scripts:
+			sc.extract()
+		html = divs.findAll('html')
+		#Remove Ads
+		for data in html:
+			data.extract()
+		style = divs.findAll('style')
+		#Remove Style tags
+		for st in style:
+			st.extract()
 
-		
-remove_without_content()
+		clean_divs = _remove_attrs(divs)
 
-
-
+		thefile = open('formatted2.html', 'w') #creating a temp file as per my requirement, you can modify as you wish or can use as is
+		for d in clean_divs:
+			thefile.write("%s\n" % d)
+#Program Ends
