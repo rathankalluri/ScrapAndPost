@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO,
                     filename='postman.log',
                     filemode='a')
 
-start_time = time.time()
+
 
 user = 'username' #wordpress admin username
 pythonapp = 'password' #wordpress password
@@ -20,90 +20,104 @@ url = 'http://your-wordpress-site.com/wp-json/wp/v2'
 token = base64.standard_b64encode(user + ':' + pythonapp)
 headers = {'Authorization': 'Basic ' + token}
 
+#Read each file and upload that 
+with open('filelist.txt') as f:
+	content = f.readlines()
 
-#PRINT TO TEST
+content = [x.strip() for x in content]
 
-#print headers
-#img_url, alt = sc.get_img_data()
-#print img_url, alt
-#keywords,content = sc.seo_data() #SEO Details - get more
-#print keywords
-#print content
-#wp_title, slug, category = sc.title_slug_gen()
-#print slug, wp_title, category
-#exit() #REMOVE THIS
+import scraper as sc
+for l in content:
+	fname = sc.get_file(l)
+	logging.info('-----------LOG INIT for %s ------------',fname) 
 
-#PRINT TO TEST END
+	start_time = time.time()
 
-keywords,description = sc.seo_data()
-logging.info('Got Keywords and SEO Content')
+	#PRINT TO TEST
 
-wp_title, slug, category_name = sc.title_slug_gen()
-logging.info('Got Title: %s , Slug: %s , Category: %s', wp_title, slug, category_name)
+	#print headers
+	#img_url, alt = sc.get_img_data()
+	#print img_url, alt
+	#keywords,content = sc.seo_data() #SEO Details - get more
+	#print keywords
+	#print content
+	#wp_title, slug, category = sc.title_slug_gen()
+	#print slug, wp_title, category
+	#exit() #REMOVE THIS
 
-content = open('cleaned.html', 'rb')
-logging.info('Content scrapped')
+	#PRINT TO TEST END
 
-img_url, alt = sc.get_img_data()
-logging.info('Image created')
+	keywords,description = sc.seo_data()
+	logging.info('Got Keywords and SEO Content')
 
-#Create a category or Check if it exists
+	wp_title, slug, category_name = sc.title_slug_gen()
+	logging.info('Got Title: %s , Slug: %s , Category: %s', wp_title, slug, category_name)
 
-cat_json = requests.get(url + '/categories', headers=headers)
-contents = cat_json.json()
-for i in contents:
-	if i['name'] == category_name:
-		 category_id = i['id']
-		 logging.info('Category ID exists with ID : %d', category_id)
-		 break
-	else:
-		cat = {'name': category_name}
-		c = requests.post(url + '/categories', headers=headers, json=cat)
-		cat = c.json()
-		category_id = cat['id']
-		logging.info('Category created with ID : %d', category_id)
-		break
+	content = open('cleaned.html', 'rb')
+	logging.info('Content scrapped')
 
-#POST media to wp and get ID
+	img_url, alt = sc.get_img_data()
+	logging.info('Image created')
 
-media = {'file': open(img_url,'rb'),'caption': alt}
-image = requests.post(url + '/media', headers=headers, files=media)
-featured_media = json.loads(image.content)['id']
-image_url = json.loads(image.content)['source_url']
+	#Create a category or Check if it exists
 
-time.sleep(5)
+	cat_json = requests.get(url + '/categories', headers=headers)
+	contents = cat_json.json()
+	for i in contents:
+		if i['name'] == category_name:
+			 category_id = i['id']
+			 logging.info('Category ID exists with ID : %d', category_id)
+			 break
+		else:
+			cat = {'name': category_name}
+			c = requests.post(url + '/categories', headers=headers, json=cat)
+			cat = c.json()
+			category_id = cat['id']
+			logging.info('Category created with ID : %d', category_id)
+			break
 
-logging.info('Media Posted')
-#exit() #REMOVE THIS
+	#POST media to wp and get ID
 
-#Create post with values
-post = {'title': wp_title,
-        'slug': slug,
-        'status': 'publish',
-        'content': content.read(),
+	media = {'file': open(img_url,'rb'),'caption': alt}
+	image = requests.post(url + '/media', headers=headers, files=media)
+	featured_media = json.loads(image.content)['id']
+	image_url = json.loads(image.content)['source_url']
+
+	time.sleep(5)
+
+	logging.info('Media Posted')
+	#exit() #REMOVE THIS
+
+	#Create post with values
+	post = {'title': wp_title,
+		'slug': slug,
+		'status': 'publish',
+		'content': content.read(),
 		'categories': category_id,
-        'author': '1',
-        'excerpt': wp_title,
-        'format': 'standard',
+		'author': '1',
+		'excerpt': wp_title,
+		'format': 'standard',
 		'featured_media':featured_media
-        }
-		
-r = requests.post(url + '/posts', headers=headers, json=post)
-r = r.json()
-post_id = r['id']
-logging.info('Post Created with ID : %d', post_id)
+		}
 
-#SEO Tag updation
-# can use your own SEO related stuff.. have written a wp-json api code at wordpress to receive this code
-tags = {'post_id':post_id,
-		'seo_title':wp_title,
-		'seo_desc':description,
-		'meta_title':'%%sitename%% | '+category_name+' | %%title%%',
-		'img_url':image_url,
-		'keywords':keywords}
+	r = requests.post(url + '/posts', headers=headers, json=post)
+	r = r.json()
+	post_id = r['id']
+	logging.info('Post Created with ID : %d', post_id)
 
-t = requests.post(url + '/yoast', headers=headers, json=tags)
-seo = t.json()
-logging.info(seo)
+	#SEO Tag updation
+	# can use your own SEO related stuff.. have written a wp-json api code at wordpress to receive this code
+	tags = {'post_id':post_id,
+			'seo_title':wp_title,
+			'seo_desc':description,
+			'meta_title':'%%sitename%% | '+category_name+' | %%title%%',
+			'img_url':image_url,
+			'keywords':keywords}
 
-logging.info('Post Created and lasped for : %s', time.time() - start_time)	
+	t = requests.post(url + '/yoast', headers=headers, json=tags)
+	seo = t.json()
+	logging.info(seo)
+
+	logging.info('Post Created and lasped for : %s', time.time() - start_time)
+	logging.info('-----------LOG END for %s -------------',fname) 
+	print "Posting of file %s Completed".format(fname)
